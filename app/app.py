@@ -11,7 +11,7 @@ logging.basicConfig(level=logging.INFO)
 app = Flask(__name__)
 
 
-@app.route("/upload", methods=["POST"])
+@app.route("/api/upload", methods=["POST"])
 def upload_file():
     try:
         if "file" not in request.files:
