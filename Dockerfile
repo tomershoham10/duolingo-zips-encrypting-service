@@ -1,17 +1,29 @@
-# ./redis/Dockerfile
-FROM redis:latest
+# Use the official Python image as a base image
+FROM python:3.9-slim
 
-# Install procps which includes sysctl
-RUN apt-get update && apt-get install -y procps
+# Set the working directory inside the container
+WORKDIR /app
 
-# Copy the entrypoint script
-COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+# Install build tools
+RUN apt-get update && apt-get install -y \
+    gcc \
+    make \
+    build-essential \
+    zlib1g-dev \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
-# Make the entrypoint script executable
-RUN chmod +x /usr/local/bin/entrypoint.sh
+# Copy the requirements file to the working directory
+COPY requirements.txt .
 
-# Expose the Redis port
-EXPOSE 6379
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Set the entrypoint to the script
-ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+# Copy the Python service code to the working directory
+COPY app /app
+
+# Expose port 5000 to allow external access
+EXPOSE 5000
+
+# Command to run the Python service
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "app:app"]
