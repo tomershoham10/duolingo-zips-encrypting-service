@@ -1,0 +1,3 @@
+
+apt-get download $(apt-rdepends <package>|grep -v "^ ")
+apt-get download $(apt-rdepends procps |grep -v "^ " |grep -v "^libc-dev$")
