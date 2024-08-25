@@ -1,0 +1,50 @@
+# Use the official Python image as a base image
+FROM python:3.9-slim
+
+# Set the working directory inside the container
+WORKDIR /app
+
+COPY . .
+
+# Install build tools
+#RUN apt-get update && apt-get install -y \
+#    gcc \
+#    make \
+#    build-essential \
+#    zlib1g-dev 
+#    && apt-get clean \
+#    && rm -rf /var/lib/apt/lists/*
+
+#RUN apt-get install -y \
+#	./apt/build-essential_12.9_amd64.deb \
+#	./apt/cpp_4%3a12.2.0-3_amd64.deb \
+#	./apt/dpkg-dev_1.21.22_all.deb \
+#	./apt/g++_4%3a12.2.0-3_amd64.deb \
+#    ./apt/gcc_4%3a12.2.0-3_amd64.deb \
+#	./apt/gcc-12_12.2.0-14_amd64.deb \
+#	./apt/libc6-dev_2.36-9+deb12u7_amd64.deb \
+#    ./apt/make_4.3-4.1_amd64.deb \
+#    ./apt/zlib1g-dev_1%3a1.2.13.dfsg-1_amd64.deb 
+#    && apt-get clean \
+#    && rm -rf /var/lib/apt/lists/*
+	
+RUN apt-get install -y ./apt/*.deb
+	
+	
+# Copy the requirements file to the working directory
+COPY requirements.txt .
+
+
+# Install Python dependencies
+#RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-index --no-cache-dir --find-links /app/packages/ -r requirements.txt
+
+
+# Copy the Python service code to the working directory
+COPY app /app
+
+# Expose port 5000 to allow external access
+EXPOSE 5000
+
+# Command to run the Python service
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "app:app"]
